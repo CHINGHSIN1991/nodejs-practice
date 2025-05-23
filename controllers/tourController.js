@@ -5,21 +5,17 @@ const parseQueryOperators = (queryObj) => {
   const parsedQuery = {}
 
   for (const [key, value] of Object.entries(queryObj)) {
-    // 檢查是否包含操作符格式 field[operator]
     const match = key.match(/^(\w+)\[(\w+)\]$/)
 
     if (match) {
       const [, field, operator] = match
 
-      // 如果字段還不存在，創建它
       if (!parsedQuery[field]) {
         parsedQuery[field] = {}
       }
 
-      // 添加操作符
       parsedQuery[field][operator] = value
     } else {
-      // 普通的字段直接賦值
       parsedQuery[key] = value
     }
   }
@@ -37,9 +33,10 @@ exports.getAllTours = async (req, res) => {
 
     console.log('Original query object:', queryObj)
 
-    // 2) 解析操作符格式的查詢參數
+    // 2) parse query operators
     const parsedQueryObj = parseQueryOperators(queryObj)
 
+    // 3) set advanced filtering
     let queryStr = JSON.stringify(parsedQueryObj)
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`)
 
