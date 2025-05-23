@@ -1,13 +1,49 @@
 const Tour = require('../models/tourModel')
 
+// 輔助函數：解析包含操作符的查詢參數
+const parseQueryOperators = (queryObj) => {
+  const parsedQuery = {}
+
+  for (const [key, value] of Object.entries(queryObj)) {
+    // 檢查是否包含操作符格式 field[operator]
+    const match = key.match(/^(\w+)\[(\w+)\]$/)
+
+    if (match) {
+      const [, field, operator] = match
+
+      // 如果字段還不存在，創建它
+      if (!parsedQuery[field]) {
+        parsedQuery[field] = {}
+      }
+
+      // 添加操作符
+      parsedQuery[field][operator] = value
+    } else {
+      // 普通的字段直接賦值
+      parsedQuery[key] = value
+    }
+  }
+
+  return parsedQuery
+}
+
 exports.getAllTours = async (req, res) => {
   try {
     // BUILD QUERY
+    // 1) Filtering
     const queryObj = { ...req.query }
     const excludedFields = ['page', 'sort', 'limit', 'fields']
     excludedFields.forEach((el) => delete queryObj[el])
 
-    const query = Tour.find(queryObj)
+    console.log('Original query object:', queryObj)
+
+    // 2) 解析操作符格式的查詢參數
+    const parsedQueryObj = parseQueryOperators(queryObj)
+
+    let queryStr = JSON.stringify(parsedQueryObj)
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`)
+
+    const query = Tour.find(JSON.parse(queryStr))
 
     // EXECUTE QUERY
     const tours = await query
@@ -19,9 +55,10 @@ exports.getAllTours = async (req, res) => {
       data: { tours },
     })
   } catch (err) {
+    console.error('Error in getAllTours:', err)
     res.status(404).json({
       status: 'fail',
-      message: err,
+      message: err.message || err,
     })
   }
 }
