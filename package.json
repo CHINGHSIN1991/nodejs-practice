@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "NODE_ENV=production nodemon server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "debug": "npx ndb nodemon server.js",
+    "debug-inspect": "nodemon --inspect server.js"
   },
   "author": "chinghsinc",
   "license": "ISC",
@@ -24,6 +26,7 @@
     "eslint": "^9.25.1",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.0.0",
+    "ndb": "^1.1.5",
     "typescript-eslint": "^8.31.0"
   }
 }
