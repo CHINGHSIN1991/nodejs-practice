@@ -1,3 +1,11 @@
+const AppError = require('../utils/appError')
+
+const handleCastErrorDB = (err) => {
+  console.log('handleCastErrorDB')
+  const message = `Invalid ${err.path}: ${err.value}`
+  return new AppError(message, 400)
+}
+
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -34,6 +42,21 @@ module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, res)
   } else if (process.env.NODE_ENV === 'production') {
-    sendErrorProd(err, res)
+    let error = { ...err }
+
+    if (err.name === 'CastError' || err.constructor.name === 'CastError') {
+      error = handleCastErrorDB(err)
+    }
+
+    sendErrorProd(error, res)
+  } else {
+    console.log('NODE_ENV not set or unknown, defaulting to production mode')
+    let error = { ...err }
+
+    if (err.name === 'CastError' || err.constructor.name === 'CastError') {
+      error = handleCastErrorDB(err)
+    }
+
+    sendErrorProd(error, res)
   }
 }
