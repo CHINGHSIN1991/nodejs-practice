@@ -1,3 +1,6 @@
+// TODO: check if this function is needed
+// Since the baseurl/api/v1/tours?duration[gte]=5&difficulty=easy in other place would be parsed correctly without this function
+
 const parseQueryOperators = (queryObj) => {
   const parsedQuery = {}
 
