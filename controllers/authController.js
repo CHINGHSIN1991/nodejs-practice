@@ -17,7 +17,8 @@ const createSendToken = (user, statusCode, res) => {
 
   const cookieOptions = {
     expires: new Date(
-      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+      Date.now() +
+        Number(process.env.JWT_COOKIE_EXPIRES_IN) * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
   }
@@ -111,7 +112,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
 
   // 4. Check if user changed password after the token was issued
-  if (currentUser.changedPasswordAfter(decoded.iat)) {
+  if (currentUser.changedPasswordAfter(decoded.id)) {
     return next(
       new AppError('User recently changed password! Please log in again.', 401)
     )
@@ -162,6 +163,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
       message: 'Token sent to email!',
     })
   } catch (err) {
+    console.error('Email send error:', err)
     user.passwordResetToken = undefined
     user.passwordResetExpires = undefined
     await user.save({ validateBeforeSave: false })
