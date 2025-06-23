@@ -10,9 +10,13 @@ const {
   getTourStats,
   getMonthlyPlan,
 } = require('./../controllers/tourController')
+const reviewRouter = require('./reviewRoutes')
 const router = express.Router()
 
 // router.param('id', checkID)
+
+// Nested route for reviews
+router.use('/:tourId/reviews', reviewRouter)
 
 router.route('/top-5-cheap').get(aliasTopTours, getAllTours)
 router.route('/tour-stats').get(getTourStats)
