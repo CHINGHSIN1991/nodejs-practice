@@ -2,6 +2,8 @@ const fs = require('fs')
 const mongoose = require('mongoose')
 const dotenv = require('dotenv')
 const Tour = require('./../../models/tourModel')
+const User = require('./../../models/userModel')
+const Review = require('./../../models/reviewModel')
 
 dotenv.config({ path: './config.env' })
 
@@ -18,14 +20,39 @@ mongoose.connect(DB).then(() => {
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/../data/tours-simple.json`, 'utf-8')
 )
+const users = JSON.parse(
+  fs.readFileSync(`${__dirname}/../data/users.json`, 'utf-8')
+)
+const reviews = JSON.parse(
+  fs.readFileSync(`${__dirname}/../data/reviews.json`, 'utf-8')
+)
 
 // Import data into the database
 const importData = async () => {
   try {
+    // 1) Import tours
+    console.log('Importing tours...')
     await Tour.create(tours)
-    console.log('Data successfully loaded!')
+    console.log('Tours successfully imported!')
+
+    // 2) Import users
+    console.log('Importing users...')
+    await User.create(users, { validateBeforeSave: false })
+    console.log('Users successfully imported!')
+
+    // 3) Import reviews
+    console.log('Importing reviews...')
+    await Review.create(reviews)
+    console.log('Reviews successfully imported!')
+
+    console.log('All data successfully loaded!')
   } catch (err) {
-    console.log(err)
+    console.log('Error importing data:', err.message)
+    if (err.errors) {
+      Object.values(err.errors).forEach((error) => {
+        console.log('Validation error:', error.message)
+      })
+    }
   }
   process.exit()
 }
@@ -33,10 +60,16 @@ const importData = async () => {
 // Delete all data from the database
 const deleteData = async () => {
   try {
+    // Delete in reverse order of dependencies
+    console.log('Deleting reviews...')
+    await Review.deleteMany()
+    console.log('Deleting users...')
+    await User.deleteMany()
+    console.log('Deleting tours...')
     await Tour.deleteMany()
-    console.log('Data successfully deleted!')
+    console.log('All data successfully deleted!')
   } catch (err) {
-    console.log(err)
+    console.log('Error deleting data:', err.message)
   }
   process.exit()
 }
