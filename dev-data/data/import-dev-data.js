@@ -5,7 +5,7 @@ const Tour = require('./../../models/tourModel')
 const User = require('./../../models/userModel')
 const Review = require('./../../models/reviewModel')
 
-dotenv.config({ path: './config.env' })
+dotenv.config({ path: '../../config.env' })
 
 const DB = process.env.DATABASE.replace(
   '<PASSWORD>',
@@ -17,9 +17,7 @@ mongoose.connect(DB).then(() => {
 })
 
 // Read the data from the file
-const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/../data/tours-simple.json`, 'utf-8')
-)
+const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, 'utf-8'))
 const users = JSON.parse(
   fs.readFileSync(`${__dirname}/../data/users.json`, 'utf-8')
 )
