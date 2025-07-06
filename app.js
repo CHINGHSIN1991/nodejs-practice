@@ -1,3 +1,4 @@
+const path = require('path')
 const express = require('express')
 const morgan = require('morgan')
 const rateLimit = require('express-rate-limit')
@@ -14,7 +15,11 @@ const reviewRouter = require('./routes/reviewRoutes')
 
 const app = express()
 
+app.set('view engine', 'pug')
+app.set('views', path.join(__dirname, 'views'))
+
 // Global Middlewares
+app.use(express.static(path.join(__dirname, 'public')))
 
 // Set security HTTP Headers
 app.use(helmet())
@@ -68,6 +73,10 @@ app.use((req, res, next) => {
 })
 
 // Mounting the routes
+app.get('/', (req, res) => {
+  res.status(200).render('base')
+})
+
 app.use('/api/v1/tours', tourRouter)
 app.use('/api/v1/users', userRouter)
 app.use('/api/v1/reviews', reviewRouter)
