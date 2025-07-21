@@ -1,6 +1,0 @@
-console.log('mapbox.js loaded')
-console.log(document.getElementById('map'))
-const map = document.getElementById('map')
-console.log(map)
-const locations = JSON.parse(document.getElementById('map').dataset.locations)
-console.log(locations)
